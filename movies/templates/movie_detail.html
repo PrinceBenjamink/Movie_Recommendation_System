@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load movie_filters %}
+
+{% block title %}{{ movie.title }} - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/movie_details.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Movie backdrop -->
+{% if movie.backdrop_url %}
+<div class="movie-backdrop" style="background-image: url('{{ movie.backdrop_url }}');">
+    <div class="backdrop-overlay"></div>
+</div>
+{% else %}
+<div class="movie-backdrop" style="background-color: #032541;">
+    <div class="backdrop-overlay"></div>
+</div>
+{% endif %}
+
+<div class="movie-details-container">
+    <!-- Movie header with poster and main info -->
+    <div class="movie-header">
+        <!-- Movie poster -->
+        <div class="movie-poster-large">
+            {% if movie.poster_url %}
+            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x450.png?text={{ movie.title|urlencode }}';">
+            {% else %}
+            <div class="movie-poster-placeholder">
+                <div class="poster-placeholder-content">
+                    <i class="fas fa-film fa-5x"></i>
+                    <h5>No Poster Available</h5>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Movie info -->
+        <div class="movie-header-info">
+            <h1>{{ movie.title }}</h1>
+            
+            <!-- Movie meta info -->
+            <div class="movie-meta">
+                {% if movie.release_date_formatted %}
+                <span>{{ movie.release_date_formatted }}</span>
+                {% elif movie.release_date %}
+                <span>{{ movie.release_date }}</span>
+                {% endif %}
+                
+                {% if movie.runtime %}
+                <span>{{ movie.runtime }} min</span>
+                {% endif %}
+                
+                {% if movie.vote_average %}
+                <span><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}/10</span>
+                {% endif %}
+            </div>
+            
+            <!-- Movie genres -->
+            {% if movie.genres %}
+            <div class="movie-genres">
+                {% for genre in movie.genres %}
+                <span class="genre-tag">{{ genre.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Movie actions -->
+            <div class="movie-actions">
+                {% if user.is_authenticated %}
+                    {% if in_watchlist %}
+                    <form action="{% url 'remove_from_watchlist' movie.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-bookmark me-2"></i>Remove from Watchlist
+                        </button>
+                    </form>
+                    {% else %}
+                    <form action="{% url 'add_to_watchlist' movie.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="far fa-bookmark me-2"></i>Add to Watchlist
+                        </button>
+                    </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <!-- Movie tagline -->
+            {% if movie.tagline %}
+            <div class="movie-tagline">
+                "{{ movie.tagline }}"
+            </div>
+            {% endif %}
+            
+            <!-- Movie overview -->
+            <div class="movie-overview">
+                <h3>Overview</h3>
+                <p>{{ movie.overview|default:"No overview available." }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Movie cast - only show section if there are cast members with images -->
+    {% if movie.cast %}
+    <div class="movie-cast">
+        <h2>Top Cast</h2>
+        <div class="cast-container">
+            <div class="cast-scroll">
+                {% for actor in movie.cast %}
+                <div class="cast-member">
+                    <a href="{% url 'actor_movies' actor.id %}">
+                        <div class="cast-photo">
+                            <img src="https://image.tmdb.org/t/p/w185{{ actor.profile_path }}" alt="{{ actor.name }}">
+                        </div>
+                        <div class="cast-info">
+                            <h4>{{ actor.name }}</h4>
+                            <p>{{ actor.character|default:"" }}</p>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Movie trailer section -->
+    <div class="movie-trailer">
+        <!-- <h2>Trailer</h2> -->
+        {% if movie.trailer_key %}
+        <div class="trailer-container">
+            <iframe src="https://www.youtube.com/embed/{{ movie.trailer_key }}" 
+                    title="{{ movie.title }} trailer" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+        {% else %}
+        <!-- <div class="no-trailer">
+            <p>No trailer available for this movie.</p>
+        </div> -->
+        {% endif %}
+    </div>
+
+    <!-- Movies featuring the first cast member -->
+    {% if first_cast_movies and movie.first_cast %}
+    <div class="related-movies-section">
+        <h2>Latest Movies with {{ movie.first_cast.name }}</h2>
+        <div class="movie-grid">
+            {% for related_movie in first_cast_movies %}
+            <div class="movie-card">
+                <a href="{% url 'movie_detail' related_movie.id %}">
+                    <div class="movie-poster">
+                        {% if related_movie.poster_url %}
+                        <img src="{{ related_movie.poster_url }}" alt="{{ related_movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="poster-placeholder">
+                            <div class="poster-placeholder-content">
+                                <i class="fas fa-film fa-3x"></i>
+                                <p>{{ related_movie.title|truncatechars:20 }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ related_movie.title|truncatechars:20 }}</h3>
+                        <div class="movie-meta">
+                            <span class="release-year">{{ related_movie.release_date|slice:":4"|default:"N/A" }}</span>
+                            <span class="rating"><i class="fas fa-star"></i> {{ related_movie.vote_average|floatformat:1 }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Similar movies section would go here if available -->
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

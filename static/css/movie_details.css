@@ -1,0 +1,795 @@
+/* Movie details page layout */
+.movie-details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Movie backdrop */
+.movie-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    z-index: 0; /* Lower z-index so navbar appears above */
+}
+
+.backdrop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(3, 37, 65, 0.8), rgba(3, 37, 65, 0.95));
+}
+
+/* Ensure navbar is above backdrop */
+.navbar {
+    position: relative;
+    z-index: 10; /* Higher z-index than backdrop */
+}
+
+/* Ensure content is above backdrop */
+.movie-details-container {
+    position: relative;
+    z-index: 1; /* Higher z-index than backdrop */
+    padding-top: 2rem; /* Add some space below navbar */
+}
+
+/* Movie header with poster and main info */
+.movie-header {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    color: white;
+}
+
+.movie-poster-large {
+    flex-shrink: 0;
+    width: 300px;
+    height: 450px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.movie-poster-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.movie-header-info {
+    flex: 1;
+}
+
+.movie-header-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.movie-meta {
+    display: flex;
+    gap: 0.5rem; /* Reduced gap */
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.movie-meta span {
+    position: relative;
+    padding-right: 0.6rem; /* Smaller padding */
+}
+
+.movie-meta span:not(:last-child)::after {
+    content: "•";
+    position: absolute;
+    right: 0;
+    opacity: 0.7;
+}
+
+.movie-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.genre-tag {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.movie-actions {
+    margin-bottom: 1.5rem;
+}
+
+.movie-tagline {
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+    font-size: 1.2rem;
+}
+
+.movie-overview {
+    margin-bottom: 2rem;
+    color: white; /* Make overview text white */
+}
+
+.movie-overview h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+    color: white; /* Make heading white */
+}
+
+.movie-overview p {
+    color: white; /* Ensure paragraph text is white */
+    line-height: 1.6; /* Improve readability */
+}
+
+/* Movie details grid for additional info */
+.movie-details-grid {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.movie-cast {
+    margin-bottom: 2.5rem;
+}
+
+.movie-cast h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+/* Trailer styling */
+.movie-trailer {
+    margin-bottom: 2.5rem;
+}
+
+.movie-trailer h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.trailer-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    aspect-ratio: 16 / 9;
+}
+
+.trailer-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Cast container with scroll */
+.cast-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.cast-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.cast-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.cast-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cast-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+}
+
+.cast-member {
+    min-width: 150px;
+    max-width: 150px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    flex-shrink: 0; /* Prevent cast members from shrinking */
+}
+
+.cast-member:hover {
+    transform: translateY(-5px);
+}
+
+.cast-photo {
+    height: 200px;
+    overflow: hidden;
+}
+
+.cast-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cast-info {
+    padding: 0.8rem;
+}
+
+.cast-info h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+    text-align: center;
+}
+
+.cast-info p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+/* Similar movies section */
+.similar-movies {
+    margin-top: 2rem;
+}
+
+.similar-movies h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+/* Movie details in header */
+.movie-details-info {
+    margin-top: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.2rem;
+}
+
+.movie-details-info h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+/* Movie details box */
+.movie-details-box {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    margin: 0 auto 3rem;
+    max-width: 800px;
+    color: white;
+    text-align: center;
+}
+
+.movie-details-box h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    text-align: left;
+}
+
+.detail-item h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.detail-item p {
+    font-size: 1.1rem;
+    color: white;
+}
+
+/* No poster/image placeholders */
+.movie-poster-placeholder {
+    width: 300px;
+    height: 450px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.poster-placeholder-content {
+    text-align: center;
+}
+
+.poster-placeholder-content i {
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.poster-placeholder-content h5 {
+    color: white;
+}
+
+.no-trailer {
+    text-align: center;
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    max-width: 800px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .movie-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .movie-poster-large {
+        width: 250px;
+        height: 375px;
+    }
+    
+    .movie-meta, .movie-genres {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .movie-details-container {
+        padding: 1rem;
+    }
+    
+    .movie-header-info h1 {
+        font-size: 2rem;
+    }
+    
+    .trailer-container {
+        height: 240px;
+    }
+    
+    .cast-member {
+        min-width: 120px;
+    }
+    
+    .cast-photo {
+        height: 160px;
+    }
+    
+    .movie-details-grid {
+        padding: 1.5rem;
+    }
+    
+    .movie-details-box {
+        padding: 1.5rem;
+    }
+    
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-poster-large, .movie-poster-placeholder {
+        width: 200px;
+        height: 300px;
+    }
+    
+    .movie-header-info h1 {
+        font-size: 1.8rem;
+    }
+    
+    .movie-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+.similar-movies-section .movie-meta {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments for similar movies */
+@media (max-width: 768px) {
+    .similar-movies-section .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .similar-movies-section .movie-poster {
+        height: 225px;
+    }
+}
+
+@media (max-width: 480px) {
+    .similar-movies-section .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 1rem;
+    }
+    
+    .similar-movies-section .movie-poster {
+        height: 195px;
+    }
+}
+
+/* Movie details box */
+.movie-details-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 1rem;
+}
+
+.details-grid {
+  display: flex;
+  justify-content: space-between;
+}
+
+.detail-column {
+  flex: 0 0 48%;
+}
+
+.detail-item {
+  margin-bottom: 1.5rem;
+}
+
+.detail-item h4 {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.5rem;
+}
+
+.detail-item p {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Cast section */
+.cast-section {
+  margin: 3rem 1rem;
+  position: relative;
+}
+
+/* Section title styling */
+.section-title {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: white; /* Make section titles white */
+}
+
+/* Cast container with horizontal scroll */
+.cast-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.cast-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.cast-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cast-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+}
+
+.cast-member {
+  min-width: 150px;
+  max-width: 150px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.cast-card {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+.cast-card:hover {
+  transform: translateY(-5px);
+}
+
+.cast-image {
+  width: 100%;
+  height: 175px;
+  overflow: hidden;
+}
+
+.cast-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cast-info {
+  padding: 10px;
+}
+
+.cast-info h3, .cast-info h4 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: white; /* Make cast names white */
+}
+
+.cast-info p {
+  font-size: 12px;
+  color: #777;
+}
+
+/* Cast member styling */
+.cast-member a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.cast-member:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cast-info h4 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+}
+
+.cast-info p {
+  font-size: 12px;
+  color: #aaa;
+  text-align: center;
+}
+
+/* Responsive adjustments for cast grid */
+@media (max-width: 992px) {
+  .cast-scroll {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .cast-scroll {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .cast-scroll {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Related movies section - using home page grid styling */
+.related-movies-section {
+    margin: 3rem 1rem;
+}
+
+.related-movies-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+/* Using the same grid styling as home page */
+.related-movies-section .movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.related-movies-section .movie-card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.related-movies-section .movie-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.related-movies-section .movie-poster {
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+.related-movies-section .movie-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.related-movies-section .movie-info {
+    padding: 10px 15px;
+    flex-grow: 1;
+}
+
+.related-movies-section .movie-info h3 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+    font-weight: 500;
+}
+
+.related-movies-section .movie-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Remove the character-role class styling */
+/* 
+.related-movies-section .character-role {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.3rem;
+}
+*/
+
+/* Responsive adjustments matching home page */
+@media (max-width: 768px) {
+    .related-movies-section .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .related-movies-section .movie-poster {
+        height: 225px;
+    }
+}
+
+@media (max-width: 480px) {
+    .related-movies-section .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 1rem;
+    }
+    
+    .related-movies-section .movie-poster {
+        height: 195px;
+    }
+}
+
+.related-movies-section .rating-na {
+    color: #999;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* Actor page styling */
+.actor-header {
+    margin-bottom: 2rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 2rem;
+}
+
+.actor-profile {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.actor-profile-placeholder {
+    width: 100%;
+    height: 300px;
+    background-color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.actor-profile-placeholder h1 {
+    font-size: 5rem;
+    color: white;
+}
+
+.actor-name {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.actor-info {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.actor-bio {
+    margin-top: 1.5rem;
+}
+
+.actor-bio h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.actor-bio p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Character role styling for actor page */
+.character-role {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.3rem;
+}
+
+
+
+

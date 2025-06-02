@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    .search-header {
+        margin-bottom: 2rem;
+    }
+    .search-form {
+        display: flex;
+        margin-bottom: 2rem;
+    }
+    .search-input {
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 1.1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .no-results {
+        text-align: center;
+        padding: 3rem 0;
+    }
+    .filter-options {
+        background: transparent;
+        padding: 0;
+        margin-top: 1rem;
+        margin-bottom: 100px;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-start;
+        align-items: flex-end;
+    }
+    .filter-options .form-select,
+    .filter-options .form-control {
+        border-radius: 6px;
+        border: 1px solid #b6c2d2;
+    }
+    @media (max-width: 768px) {
+        .filter-options > div {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .filter-options .form-group {
+            margin-bottom: 0.5rem;
+            min-width: 48%;
+        }
+        
+        .filter-options .form-group:last-child {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        .filter-options .form-group:last-child .btn {
+            width: 100%;
+        }
+    }
+    @media (max-width: 576px) {
+        .filter-options .form-group {
+            min-width: 100%;
+        }
+    }
+    .loading-indicator {
+        text-align: center;
+        padding: 2rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="search-header">
+        <h2>Search Results</h2>
+        <form class="search-form" id="search-form" action="{% url 'search' %}" method="get">
+            <div class="input-group mb-0">
+                <input type="text" name="q" id="query" class="search-input" placeholder="Search for movies, actors, or directors..." value="{{ query }}">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </div>
+            
+            <!-- Filter options directly below the search bar -->
+            <div class="filter-options mt-3" style="width:100%;margin-left:20px ;margin-top:20px;box-shadow:none; background:transparent; padding:0; margin-bottom:2rem;">
+                <div class="d-flex flex-wrap gap-2 justify-content-start align-items-end">
+                    <div class="form-group me-2">
+                        <label for="year">Year</label>
+                        <select class="form-select" id="year" name="year" style="min-width:120px;">
+                            <option value="">All Years</option>
+                            {% for year_option in year_range %}
+                                <option value="{{ year_option }}" {% if year == year_option|stringformat:"i" %}selected{% endif %}>{{ year_option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group me-2">
+                        <label for="genre">Genre</label>
+                        <select class="form-select" id="genre" name="genre" style="min-width:150px;">
+                            <option value="">All Genres</option>
+                            <option value="Action" {% if genre == 'Action' %}selected{% endif %}>Action</option>
+                            <option value="Adventure" {% if genre == 'Adventure' %}selected{% endif %}>Adventure</option>
+                            <option value="Animation" {% if genre == 'Animation' %}selected{% endif %}>Animation</option>
+                            <option value="Comedy" {% if genre == 'Comedy' %}selected{% endif %}>Comedy</option>
+                            <option value="Crime" {% if genre == 'Crime' %}selected{% endif %}>Crime</option>
+                            <option value="Documentary" {% if genre == 'Documentary' %}selected{% endif %}>Documentary</option>
+                            <option value="Drama" {% if genre == 'Drama' %}selected{% endif %}>Drama</option>
+                            <option value="Family" {% if genre == 'Family' %}selected{% endif %}>Family</option>
+                            <option value="Fantasy" {% if genre == 'Fantasy' %}selected{% endif %}>Fantasy</option>
+                            <option value="Horror" {% if genre == 'Horror' %}selected{% endif %}>Horror</option>
+                            <option value="Romance" {% if genre == 'Romance' %}selected{% endif %}>Romance</option>
+                            <option value="Science Fiction" {% if genre == 'Science Fiction' %}selected{% endif %}>Science Fiction</option>
+                            <option value="Thriller" {% if genre == 'Thriller' %}selected{% endif %}>Thriller</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group me-2">
+                        <label for="language">Language</label>
+                        <select class="form-select" id="language" name="language" style="min-width:150px;">
+                            <option value="">All Languages</option>
+                            <option value="en" {% if language == 'en' %}selected{% endif %}>English</option>
+                            <option value="ta" {% if language == 'ta' %}selected{% endif %}>Tamil</option>
+                            <option value="ml" {% if language == 'ml' %}selected{% endif %}>Malayalam</option>
+                            <option value="hi" {% if language == 'hi' %}selected{% endif %}>Hindi</option>
+                            <option value="te" {% if language == 'te' %}selected{% endif %}>Telugu</option>
+                            <option value="kn" {% if language == 'kn' %}selected{% endif %}>Kannada</option>
+                            <option value="fr" {% if language == 'fr' %}selected{% endif %}>French</option>
+                            <option value="es" {% if language == 'es' %}selected{% endif %}>Spanish</option>
+                            <option value="ja" {% if language == 'ja' %}selected{% endif %}>Japanese</option>
+                            <option value="ko" {% if language == 'ko' %}selected{% endif %}>Korean</option>
+                        </select>
+                    </div>
+                    
+                    <!-- <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    </div> -->
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="loading-indicator" class="loading-indicator d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Searching for movies...</p>
+    </div>
+
+    <div id="results-container">
+        {% if query or year or genre or language %}
+            {% if results %}
+                <p class="results-count">Found {{ results|length }} results</p>
+                <div class="movie-grid">
+                    {% for movie in results %}
+                    <div class="movie-card">
+                        <a href="{% url 'movie_detail' movie.id %}">
+                            <div class="movie-poster">
+                                {% if movie.poster_url %}
+                                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                                {% else %}
+                                <div class="movie-poster-placeholder">
+                                    <div class="poster-placeholder-content">
+                                        <i class="fas fa-film fa-3x"></i>
+                                        <p>{{ movie.title|truncatechars:20 }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="movie-info">
+                                <h3 class="movie-title">{{ movie.title|truncatechars:20 }}</h3>
+                                <div class="movie-meta">
+                                    <span class="release-year">{{ movie.release_date|slice:":4"|default:"N/A" }}</span>
+                                    <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                                </div>
+                                {% if movie.character %}
+                                <div class="movie-role">Role: {{ movie.character }}</div>
+                                {% elif movie.job %}
+                                <div class="movie-role">Job: {{ movie.job }}</div>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h3>No results found for your search</h3>
+                    <p>Try different keywords or check your filters.</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="no-results">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h3>Enter a search term or select filters</h3>
+                <p>Search for movies by title, year, genre, or language.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('search-form');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const resultsContainer = document.getElementById('results-container');
+    
+    // Add event listeners to filter inputs for automatic search
+    const yearInput = document.getElementById('year');
+    const genreSelect = document.getElementById('genre');
+    const languageSelect = document.getElementById('language');
+    
+    // Function to submit the form
+    function submitSearch() {
+        loadingIndicator.classList.remove('d-none');
+        resultsContainer.classList.add('d-none');
+        searchForm.submit();
+    }
+    
+    // Add event listeners for filter changes
+    yearInput.addEventListener('change', submitSearch);
+    genreSelect.addEventListener('change', submitSearch);
+    languageSelect.addEventListener('change', submitSearch);
+});
+</script>
+{% endblock %}
+
+
+
+

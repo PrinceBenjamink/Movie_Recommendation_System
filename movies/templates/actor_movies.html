@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ actor.name }} - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    .actor-header {
+        display: flex;
+        margin-bottom: 2rem;
+        gap: 2rem;
+    }
+    .actor-image {
+        flex: 0 0 200px;
+    }
+    .actor-image img {
+        width: 100%;
+        border-radius: 8px;
+    }
+    .actor-info {
+        flex: 1;
+    }
+    .actor-bio {
+        margin-top: 1rem;
+        line-height: 1.6;
+    }
+    .actor-meta {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .actor-meta-item {
+        background-color: #f8f9fa;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+    }
+    .section-title {
+        margin: 2rem 0 1rem;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 0.5rem;
+    }
+    @media (max-width: 768px) {
+        .actor-header {
+            flex-direction: column;
+        }
+        .actor-image {
+            flex: 0 0 auto;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if actor %}
+    <div class="actor-header">
+        <div class="actor-image">
+            {% if actor.profile_url %}
+            <img src="{{ actor.profile_url }}" alt="{{ actor.name }}" class="img-fluid">
+            {% else %}
+            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 300px; border-radius: 8px;">
+                <i class="fas fa-user fa-4x text-secondary"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="actor-info">
+            <h1>{{ actor.name }}</h1>
+            
+            <div class="actor-meta">
+                {% if actor.birthday %}
+                <div class="actor-meta-item">
+                    <i class="fas fa-birthday-cake me-2"></i> 
+                    {{ actor.birthday }}
+                    {% if actor.deathday %}
+                    - {{ actor.deathday }} (Deceased)
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if actor.place_of_birth %}
+                <div class="actor-meta-item">
+                    <i class="fas fa-map-marker-alt me-2"></i> 
+                    {{ actor.place_of_birth }}
+                </div>
+                {% endif %}
+                
+                {% if actor.known_for_department %}
+                <div class="actor-meta-item">
+                    <i class="fas fa-film me-2"></i> 
+                    {{ actor.known_for_department }}
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if actor.biography %}
+            <div class="actor-bio">
+                <p>{{ actor.biography|linebreaks|truncatewords:100 }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <h2 class="section-title">Movies</h2>
+    
+    {% if movies %}
+        <div class="movie-grid">
+            {% for movie in movies %}
+            <div class="movie-card">
+                <a href="{% url 'movie_detail' movie.id %}">
+                    <div class="movie-poster">
+                        {% if movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="movie-poster-placeholder">
+                            <div class="poster-placeholder-content">
+                                <i class="fas fa-film fa-3x"></i>
+                                <p>{{ movie.title|truncatechars:20 }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ movie.title|truncatechars:20 }}</h3>
+                        <div class="movie-meta">
+                            <span class="release-year">{{ movie.release_date|slice:":4"|default:"N/A" }}</span>
+                            <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                        </div>
+                        {% if movie.character %}
+                        <div class="movie-role">Role: {{ movie.character }}</div>
+                        {% elif movie.job %}
+                        <div class="movie-role">Job: {{ movie.job }}</div>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No movies found for this actor.
+        </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="alert alert-warning">
+        Actor information not available.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

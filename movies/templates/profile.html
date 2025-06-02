@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Your Profile - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    .profile-header {
+        background-color: #032541;
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .profile-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+    .stat-box {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+        flex: 1;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    .section-title {
+        margin: 2rem 0 1rem;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 0.5rem;
+    }
+    .recent-view {
+        display: flex;
+        margin-bottom: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .recent-poster {
+        width: 80px;
+        height: 120px;
+    }
+    .recent-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .recent-info {
+        padding: 1rem;
+        flex: 1;
+    }
+    .recent-meta {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    <div class="container">
+        <div class="d-flex align-items-center mb-3">
+            <!-- <h2 class="me-3">{{ user.username }}</h2> -->
+            
+        </div>
+        <h1>{{ user.username }}'s Profile</h1>
+        <p>Member since {{ user.date_joined|date:"F j, Y" }}</p>
+        <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+        </form>
+        
+        <div class="profile-stats">
+            <div class="stat-box">
+                <div class="stat-number">{{ viewed_count }}</div>
+                <div class="stat-label">Movies Viewed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ watchlist_count }}</div>
+                <div class="stat-label">Movies in Watchlist</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    {% if recent_movies %}
+    <h2 class="section-title">Recently Viewed</h2>
+    <div class="recent-movies">
+        {% for movie in recent_movies %}
+        <div class="recent-view">
+            <div class="recent-poster">
+                {% if movie.poster_url %}
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+                {% else %}
+                <div class="bg-secondary d-flex align-items-center justify-content-center h-100">
+                    <i class="fas fa-film text-white"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="recent-info">
+                <h4><a href="{% url 'movie_detail' movie.id %}">{{ movie.title }}</a></h4>
+                <div class="recent-meta">
+                    <span>{{ movie.release_date|slice:":4" }}</span>
+                    <span class="ms-2"><i class="fas fa-star text-warning"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                    {% if movie.last_viewed %}
+                    <span class="ms-2">Viewed {{ movie.last_viewed|naturaltime }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p>You haven't watched any movies yet. Start exploring!</p>
+        <a href="{% url 'home' %}" class="btn btn-primary mt-2">Browse Movies</a>
+    </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{% url 'watchlist' %}" class="btn btn-primary">View Watchlist</a>
+        <a href="{% url 'recommendations' %}" class="btn btn-outline-primary text-white bg-info border-info ms-2">Get Recommendations</a>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+

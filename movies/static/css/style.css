@@ -1,0 +1,17 @@
+/* Logout button styled as a link */
+.navbar-nav form .btn.nav-link {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.navbar-nav form .btn.nav-link:hover {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.navbar-nav form .btn.nav-link:focus {
+    box-shadow: none;
+}

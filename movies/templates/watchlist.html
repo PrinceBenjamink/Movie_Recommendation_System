@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Watchlist - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/watchlist.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="section-header">
+        <h2>My Watchlist</h2>
+        <p>Movies you want to watch</p>
+    </div>
+    
+    <div id="watchlist-container">
+        {% if movies %}
+        <div class="movie-grid">
+            {% for movie in movies %}
+            <div class="movie-card watchlist-card" id="movie-card-{{ movie.id }}">
+                <a href="{% url 'movie_detail' movie.id %}">
+                    <div class="movie-poster">
+                        {% if movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="movie-poster-placeholder">
+                            <div class="poster-placeholder-content">
+                                <i class="fas fa-film fa-3x"></i>
+                                <p>{{ movie.title|truncatechars:20 }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ movie.title|truncatechars:20 }}</h3>
+                        <div class="movie-meta">
+                            <span class="release-year">{{ movie.release_date|slice:":4"|default:"N/A" }}</span>
+                            <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                        </div>
+                        {% if movie.added_date %}
+                        <div class="added-date">Added {{ movie.added_date|date:"M d, Y" }}</div>
+                        {% endif %}
+                    </div>
+                </a>
+                <button class="remove-btn" title="Remove from watchlist" data-movie-id="{{ movie.id }}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if has_few_movies and recommended_movies %}
+        <div class="recommendations-section mt-5">
+            <div class="section-header">
+                <h2>Recommended for You</h2>
+                <p>Add more movies to your watchlist</p>
+            </div>
+            <div class="movie-grid">
+                {% for movie in recommended_movies %}
+                <div class="movie-card">
+                    <a href="{% url 'movie_detail' movie.id %}">
+                        <div class="movie-poster">
+                            {% if movie.poster_url %}
+                            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                            {% else %}
+                            <div class="movie-poster-placeholder">
+                                <div class="poster-placeholder-content">
+                                    <i class="fas fa-film fa-3x"></i>
+                                    <p>{{ movie.title|truncatechars:20 }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="movie-info">
+                            <h3 class="movie-title">{{ movie.title|truncatechars:20 }}</h3>
+                            <div class="movie-meta">
+                                <span class="release-year">{{ movie.release_date|slice:":4"|default:"N/A" }}</span>
+                                <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="empty-watchlist">
+            <div class="empty-message">
+                <i class="fas fa-film fa-4x mb-3"></i>
+                <h3>Your watchlist is empty</h3>
+                <p>Start adding movies to your watchlist to keep track of what you want to watch.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary mt-3">Browse Movies</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all remove buttons
+    const removeButtons = document.querySelectorAll('.remove-btn');
+    
+    // Add click event listener to each button
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const movieId = this.getAttribute('data-movie-id');
+            const movieCard = document.getElementById(`movie-card-${movieId}`);
+            
+            // Show loading state
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.disabled = true;
+            
+            // Send AJAX request to remove movie
+            fetch(`/remove-from-watchlist/${movieId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Animate removal of the movie card
+                    movieCard.style.opacity = '0';
+                    setTimeout(() => {
+                        movieCard.remove();
+                        
+                        // Check if watchlist is now empty
+                        const remainingCards = document.querySelectorAll('.watchlist-card');
+                        if (remainingCards.length === 0) {
+                            // Show empty watchlist message
+                            document.getElementById('watchlist-container').innerHTML = `
+                                <div class="empty-watchlist">
+                                    <div class="empty-message">
+                                        <i class="fas fa-film fa-4x mb-3"></i>
+                                        <h3>Your watchlist is empty</h3>
+                                        <p>Start adding movies to your watchlist to keep track of what you want to watch.</p>
+                                        <a href="/" class="btn btn-primary mt-3">Browse Movies</a>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                } else {
+                    // Show error and reset button
+                    alert('Failed to remove movie from watchlist');
+                    this.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    this.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while removing the movie');
+                this.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                this.disabled = false;
+            });
+        });
+    });
+    
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}
+
+
+

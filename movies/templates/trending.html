@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Trending Movies - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Trending Movies</h2>
+    
+    {% if movies %}
+        <div class="movie-grid">
+            {% for movie in movies %}
+            <div class="movie-card">
+                <a href="{% url 'movie_detail' movie.id %}">
+                    <div class="movie-poster">
+                        {% if movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="movie-poster-placeholder">
+                            <div class="poster-placeholder-content">
+                                <i class="fas fa-film fa-3x"></i>
+                                <p>{{ movie.title|truncatechars:20 }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ movie.title|truncatechars:20 }}</h3>
+                        <div class="movie-meta">
+                            <span class="release-year">{{ movie.release_date|slice:":4"|default:"N/A" }}</span>
+                            <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No trending movies available at the moment. Please try again later.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

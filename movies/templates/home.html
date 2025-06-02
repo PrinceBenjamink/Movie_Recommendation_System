@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    .welcome-section {
+        background-color: rgb(33 37 41);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 2.5rem 2rem 2rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 2px 16px rgba(13,110,253,0.08);
+    }
+    .welcome-section h1,
+    .welcome-section p {
+        color: #fff;
+    }
+    .welcome-btns {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    .welcome-btns .btn {
+        color:white;
+        min-width: 150px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s;
+    }
+    .welcome-btns .btn:hover,
+    .welcome-btns .btn:focus {
+        background-color: #084298 !important;
+        color: #f4f2f2 !important;
+        border-color: #084298 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="welcome-section">
+        <h1 class="display-4 mb-3">Welcome to MovieHub!</h1>
+        <p class="lead mb-4">Discover and explore your favorite movies.</p>
+        <hr class="my-4" style="border-color:rgba(255,255,255,0.3)">
+        {% if user.is_authenticated %}
+            <p class="mb-4">You are logged in as {{ user.username }}.</p>
+            <div class="welcome-btns">
+                <a class="btn btn-light" href="{% url 'profile' %}" role="button">View Profile</a>
+                <a class="btn btn-light" href="{% url 'watchlist' %}" role="button">My Watchlist</a>
+                <a class="btn btn-light" href="{% url 'recommendations' %}" role="button">Recommendations</a>
+            </div>
+        {% else %}
+            <p class="mb-4">Sign up or log in to start your movie journey.</p>
+            <div class="welcome-btns">
+                <a class="btn btn-light" href="{% url 'register' %}" role="button">Register</a>
+                <a class="btn btn-light" href="{% url 'login' %}" role="button">Login</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Movies Section -->
+    <div class="movie-section">
+        <div class="section-header">
+            <h2>{{ page_title }}</h2>
+        </div>
+        <div class="movie-grid">
+            {% for movie in movies %}
+            <div class="movie-card">
+                <a href="{% url 'movie_detail' movie.id %}">
+                    {% if movie.poster_url %}
+                    <div class="movie-poster">
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x450.png?text={{ movie.title|urlencode|truncatechars:20 }}';">
+                    </div>
+                    {% else %}
+                    <div class="movie-poster movie-poster-placeholder">
+                        <div class="poster-placeholder-content">
+                            <i class="fas fa-film fa-3x"></i>
+                            <p>{{ movie.title|truncatechars:20 }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title|truncatechars:20 }}</h3>
+                    <div class="movie-meta">
+                        <span class="release-year">{{ movie.release_date|slice:":4"|default:"N/A" }}</span>
+                        <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+

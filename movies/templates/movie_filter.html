@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Filter Movies</h2>
+    <form id="filter-form" class="row g-3">
+        <div class="col-md-3">
+            <input type="text" class="form-control" name="query" placeholder="Search by title...">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="genre">
+                <option value="">All Genres</option>
+                <option value="Action">Action</option>
+                <option value="Drama">Drama</option>
+                <!-- Add more genres as needed -->
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" name="year" placeholder="Year">
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" name="language">
+                <option value="">All Languages</option>
+                <option value="en">English</option>
+                <option value="ta">Tamil</option>
+                <option value="ml">Malayalam</option>
+                <!-- Add more languages as needed -->
+            </select>
+        </div>
+    </form>
+    <div id="movie-results" class="row mt-4">
+        {% for movie in movies %}
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                {% if movie.poster_url %}
+                <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }}</h5>
+                    <p class="card-text">{{ movie.release_date }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filter-form');
+    const resultsDiv = document.getElementById('movie-results');
+
+    form.addEventListener('input', function() {
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData).toString();
+        fetch("{% url 'movie_filter_ajax' %}?" + params)
+            .then(response => response.json())
+            .then(data => {
+                resultsDiv.innerHTML = '';
+                data.movies.forEach(movie => {
+                    resultsDiv.innerHTML += `
+                        <div class="col-md-3 mb-3">
+                            <div class="card">
+                                ${movie.poster_url ? `<img src="${movie.poster_url}" class="card-img-top" alt="${movie.title}">` : ''}
+                                <div class="card-body">
+                                    <h5 class="card-title">${movie.title}</h5>
+                                    <p class="card-text">${movie.release_date || ''}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+    });
+});
+</script>
+{% endblock %}

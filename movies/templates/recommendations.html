@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recommendations - MovieHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    .movie-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    @media (max-width: 1200px) {
+        .movie-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    @media (max-width: 768px) {
+        .movie-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="section-header">
+        <h2>Recommended Movies</h2>
+    </div>
+    {% if recommendations %}
+        <div class="movie-grid">
+            {% for movie in recommendations %}
+            <div class="movie-card">
+                <a href="{% url 'movie_detail' movie.id %}">
+                    {% if movie.poster_url %}
+                    <div class="movie-poster">
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x450.png?text={{ movie.title|urlencode|truncatechars:20 }}';">
+                    </div>
+                    {% else %}
+                    <div class="movie-poster movie-poster-placeholder">
+                        <div class="poster-placeholder-content">
+                            <i class="fas fa-film fa-3x"></i>
+                            <p>{{ movie.title|truncatechars:20 }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title|truncatechars:20 }}</h3>
+                    <div class="movie-meta">
+                        <span class="release-year">{{ movie.release_date|slice:":4"|default:"N/A" }}</span>
+                        <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average|floatformat:1 }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-results text-center">
+            <i class="fas fa-film fa-3x mb-3"></i>
+            <h3>No recommendations available</h3>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
